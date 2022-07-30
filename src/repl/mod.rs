@@ -1,14 +1,20 @@
+use crate::assembler::program_parser::{program, Program};
 use crate::vm::VM;
+use nom::types::CompleteStr;
 use std;
 use std::io;
 use std::io::Write;
 use std::num::ParseIntError;
-use nom::types::CompleteStr;
-use crate::assembler::program_parser::{Program, program};
 
 pub struct REPL {
     cmd_buffer: Vec<String>,
     vm: VM,
+}
+
+impl Default for REPL {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl REPL {
@@ -20,7 +26,7 @@ impl REPL {
     }
 
     fn parse_hex(&mut self, i: &str) -> Result<Vec<u8>, ParseIntError> {
-        let split = i.split(" ").collect::<Vec<&str>>();
+        let split = i.split(' ').collect::<Vec<&str>>();
         let mut results: Vec<u8> = vec![];
         for hex_string in split {
             let byte = u8::from_str_radix(&hex_string, 16);
@@ -73,19 +79,16 @@ impl REPL {
                     println!("<DONE>")
                 }
                 _ => {
-                    let parsed_program = program(CompleteStr(buffer));
-
-                    if !parsed_program.is_ok() {
-                        println!("Unable to parse input");
-                        continue;
-                    }
-                    let (_, result) = parsed_program.unwrap();
-                    let bytecode = result.to_bytes();
-                    // TODO: Make a function to let us add multiple bytes to the VM
-                    for byte in bytecode {
-                        self.vm.add_byte(byte);
-                    }
-                    self.vm.run_once();
+                    let program = match program(buffer.into()) {
+                        // Rusts pattern matching is pretty powerful an can even be nested
+                        Ok((_, program)) => program,
+                        Err(_) => {
+                            println!("Unable to parse input");
+                            continue;
+                        }
+                    };
+                    // The `program` is `pub` anyways so you can just `append` to the `Vec`
+                    self.vm.program.append(&mut program.to_bytes());
                 }
             }
         }

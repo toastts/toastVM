@@ -2,11 +2,11 @@ use std;
 
 use nom::*;
 
-use crate::instruction::Opcode;
-use crate::assembler::Token;
 use crate::assembler::opcode_parser::*;
 use crate::assembler::operand_parser::integer_operand;
 use crate::assembler::register_parser::register;
+use crate::assembler::Token;
+use crate::instruction::Opcode;
 
 #[derive(Debug, PartialEq)]
 pub struct AssemblerInstruction {
@@ -31,14 +31,13 @@ impl AssemblerInstruction {
             }
         };
 
-        for operand in vec![&self.operand1, &self.operand2, &self.operand3] {
-            match operand {
-                Some(t) => AssemblerInstruction::extract_operand(t, &mut results),
-                None => {}
+for operand in &[&self.operand1, &self.operand2, &self.operand3] {
+            if let Some(token) = operand {
+                AssemblerInstruction::extract_operand(token, &mut results)
             }
-        }
 
-        return results;
+        results;
+    }
     }
 
     fn extract_operand(t: &Token, results: &mut Vec<u8>) {
@@ -61,8 +60,6 @@ impl AssemblerInstruction {
     }
 }
 
-/// Handles instructions of the following form:
-/// LOAD $0 #100
 named!(pub instruction_one<types::CompleteStr, AssemblerInstruction>,
     do_parse!(
         o: opcode_load >>
@@ -78,4 +75,3 @@ named!(pub instruction_one<types::CompleteStr, AssemblerInstruction>,
         )
     )
 );
-
