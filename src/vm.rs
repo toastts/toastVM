@@ -22,19 +22,20 @@ impl VM {
     fn decode_opcode(&mut self) -> Opcode {
         let opcode = Opcode::from(self.program[self.pc]);
         self.pc += 1;
-        return opcode;
+        opcode
     }
 
     fn next_8_bits(&mut self) -> u8 {
         let result = self.program[self.pc];
         self.pc += 1;
-        return result;
+        result
     }
 
     fn next_16_bits(&mut self) -> u16 {
-        let result = ((self.program[self.pc] as u16) << 8) | self.program[self.pc + 1] as u16;
+        let result =
+            ((u16::from(self.program[self.pc])) << 8) | u16::from(self.program[self.pc + 1]);
         self.pc += 2;
-        return result;
+        result
     }
 
     pub fn add_byte(&mut self, b: u8) {

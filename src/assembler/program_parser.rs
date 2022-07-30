@@ -1,6 +1,6 @@
 use nom::*;
 
-use crate::assembler::instruction_parser::{instruction_one, AssemblerInstruction};
+use crate::assembler::instruction_parser::{instruction, AssemblerInstruction};
 
 #[derive(Debug, PartialEq)]
 pub struct Program {
@@ -19,7 +19,7 @@ impl Program {
 
 named!(pub program<types::CompleteStr, Program>,
     do_parse!(
-        instructions: many1!(instruction_one) >>
+        instructions: many1!(instruction) >>
         (
             Program {
                 instructions: instructions
