@@ -1,10 +1,13 @@
 #[derive(Debug, PartialEq)]
 pub enum Opcode {
-    HLT,
-    ILGL,
     ADD,
     DIV,
+    HLT,
+    IGL,
+    JMP,
     LOAD,
+    MUL,
+    SUB,
 }
 
 #[derive(Debug, PartialEq)]
@@ -26,4 +29,3 @@ impl From<u8> for Opcode {
         }
     }
 }
-
