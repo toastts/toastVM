@@ -1,9 +1,9 @@
 use crate::instruction::Opcode;
 
 pub struct VM {
-    registers: [i32; 32],
+    pub registers: [i32; 32],
     pc: usize,
-    program: Vec<u8>,
+    pub program: Vec<u8>,
     remainder: usize,
     equals: bool,
 }
@@ -35,6 +35,10 @@ impl VM {
         let result = ((self.program[self.pc] as u16) << 8) | self.program[self.pc + 1] as u16;
         self.pc += 2;
         return result;
+    }
+
+    pub fn add_byte(&mut self, b: u8) {
+        self.program.push(b);
     }
 
     //loops through all instructions

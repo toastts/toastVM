@@ -53,22 +53,22 @@ impl REPL {
                     println!("later loser");
                     std::process::exit(0);
                 }
-                ".history" => {
+                ".hist" => {
                     for command in &self.cmd_buffer {
                         println!("{}", command);
                     }
                 }
-                ".program" => {
-                    println!("Listing instructions currently in VM's program vector:");
+                ".prog" => {
+                    println!("printing instructions in program vector");
                     for instruction in &self.vm.program {
                         println!("{}", instruction);
                     }
-                    println!("End of Program Listing");
+                    println!("<DONE>");
                 }
-                ".registers" => {
-                    println!("Listing registers and all contents:");
+                ".dump" => {
+                    println!("dumping registers and contents");
                     println!("{:#?}", self.vm.registers);
-                    println!("End of Register Listing")
+                    println!("<DONE>")
                 }
                 _ => {
                     let results = self.parse_hex(buffer);
@@ -79,7 +79,7 @@ impl REPL {
                             }
                         }
                         Err(_e) => {
-                            println!("Unable to decode hex string. Please enter 4 groups of 2 hex characters.")
+                            println!("can't decode hex string")
                         }
                     };
                     self.vm.run_once();
