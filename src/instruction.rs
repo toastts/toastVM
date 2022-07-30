@@ -1,7 +1,10 @@
 #[derive(Debug, PartialEq)]
 pub enum Opcode {
     HLT,
-    IGL,
+    ILGL,
+    ADD,
+    DIV,
+    LOAD,
 }
 
 #[derive(Debug, PartialEq)]
@@ -15,19 +18,12 @@ impl Instruction {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_make_hlt() {
-        let opcode = Opcode::HLT;
-        assert_eq!(opcode, Opcdoe::HLT);
-    }
-
-    #[test]
-    fn test_make_instruction() {
-        let instruction = Instruciton::new(Opcode::HLT);
-        assert_eq!(instruction.opcode, Opcode::HLT);
+impl From<u8> for Opcode {
+    fn from(v: u8) -> Self {
+        match v {
+            0 => return Opcode::HLT,
+            _ => return Opcode::ILGL,
+        }
     }
 }
+
