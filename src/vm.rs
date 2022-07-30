@@ -5,6 +5,7 @@ pub struct VM {
     pc: usize,
     program: Vec<u8>,
     remainder: usize,
+    equals: bool,
 }
 
 impl VM {
@@ -14,6 +15,7 @@ impl VM {
             program: vec![],
             pc: 0,
             remainder: 0,
+            equals: false,
         }
     }
 
@@ -101,6 +103,78 @@ impl VM {
             Opcode::JMPB => {
                 let value = self.registers[self.next_8_bits() as usize] as usize;
                 self.pc -= value;
+            }
+            Opcode::EQ => {
+                let register1 = self.registers[self.next_8_bits() as usize];
+                let register2 = self.registers[self.next_8_bits() as usize];
+                if register1 == register2 {
+                    self.equals = true;
+                } else {
+                    self.equals = false;
+                }
+                self.next_8_bits();
+            }
+            Opcode::NEQ => {
+                let register1 = self.registers[self.next_8_bits() as usize];
+                let register2 = self.registers[self.next_8_bits() as usize];
+                if register1 != register2 {
+                    self.equals = true;
+                } else {
+                    self.equals = false;
+                }
+                self.next_8_bits();
+            }
+            Opcode::GT => {
+                let register1 = self.registers[self.next_8_bits() as usize];
+                let register2 = self.registers[self.next_8_bits() as usize];
+                if register1 > register2 {
+                    self.equals = true;
+                } else {
+                    self.equals = false;
+                }
+                self.next_8_bits();
+            }
+            Opcode::GTE => {
+                let register1 = self.registers[self.next_8_bits() as usize];
+                let register2 = self.registers[self.next_8_bits() as usize];
+                if register1 >= register2 {
+                    self.equals = true
+                } else {
+                    self.equals = false
+                }
+                self.next_8_bits();
+            }
+            Opcode::LT => {
+                let register1 = self.registers[self.next_8_bits() as usize];
+                let register2 = self.registers[self.next_8_bits() as usize];
+                if register1 < register2 {
+                    self.equals = true;
+                } else {
+                    self.equals = false;
+                }
+                self.next_8_bits();
+            }
+            Opcode::LTE => {
+                let register1 = self.registers[self.next_8_bits() as usize];
+                let register2 = self.registers[self.next_8_bits() as usize];
+                if register1 <= register2 {
+                    self.equals = true;
+                } else {
+                    self.equals = false;
+                }
+                self.next_8_bits();
+            }
+            Opcode::JMPE => {
+                let register = self.next_8_bits() as usize;
+                let target = self.registers[register];
+                if self.equals {
+                    self.pc = target as usize;
+                }
+            }
+            Opcode::NOP => {
+                self.next_8_bits();
+                self.next_8_bits();
+                self.next_8_bits();
             }
         }
         true
