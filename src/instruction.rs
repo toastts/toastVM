@@ -1,15 +1,15 @@
 #[derive(Debug, PartialEq)]
 pub enum Opcode {
-    LOAD,
     ADD,
-    SUB,
-    MUL,
     DIV,
     HLT,
     IGL,
     JMP,
-    JMPF,
     JMPB,
+    JMPF,
+    LOAD,
+    MUL,
+    SUB,
 }
 #[derive(Debug, PartialEq)]
 pub struct Instruction {
