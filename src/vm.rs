@@ -4,7 +4,7 @@ pub struct VM {
     registers: [i32; 32],
     pc: usize,
     program: Vec<u8>,
-    remainder: u32,
+    remainder: usize,
 }
 
 impl VM {
@@ -65,19 +65,42 @@ impl VM {
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.registers[self.next_8_bits() as usize] = register1 + register2;
             }
+            Opcode::SUB => {
+                let register1 = self.registers[self.next_8_bits() as usize];
+                let register2 = self.registers[self.next_8_bits() as usize];
+                self.registers[self.next_8_bits() as usize] = register1 - register2;
+            }
+            Opcode::MUL => {
+                let register1 = self.registers[self.next_8_bits() as usize];
+                let register2 = self.registers[self.next_8_bits() as usize];
+                self.registers[self.next_8_bits() as usize] = register1 * register2;
+            }
             Opcode::DIV => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 self.registers[self.next_8_bits() as usize] = register1 / register2;
-                self.remainder = (register1 % register2) as u32;
+                self.remainder = (register1 % register2) as usize;
             }
             Opcode::HLT => {
                 println!("HLT encountered");
-                false;
+                return false;
             }
-            Opcode::ILGL => {
-                println!("illegal instruction");
-                false;
+            Opcode::IGL => {
+                println!("Illegal instruction encountered");
+                return false;
+            }
+            Opcode::JMP => {
+                let target = self.registers[self.next_8_bits() as usize];
+                self.pc = target as usize;
+            }
+            Opcode::JMPF => {
+                let value = self.registers[self.next_8_bits() as usize] as usize;
+                println!("Value is: {:?}", value);
+                self.pc += value;
+            }
+            Opcode::JMPB => {
+                let value = self.registers[self.next_8_bits() as usize] as usize;
+                self.pc -= value;
             }
         }
         true
