@@ -1,9 +1,9 @@
 use nom::digit;
-use nom::types::CompleteStr;
+use nom::*;
 
-use assembler::Token;
+use crate::assembler::Token;
 
-named!(pub register <CompleteStr, Token>,
+named!(pub register <types::CompleteStr, Token>,
     ws!(
         do_parse!(
             tag!("$") >>

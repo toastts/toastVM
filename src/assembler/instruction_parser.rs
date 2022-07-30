@@ -1,11 +1,12 @@
 use std;
-use nom::types::CompleteStr;
+
+use nom::*;
 
 use crate::instruction::Opcode;
 use crate::assembler::Token;
-use crate::assembler::opcode_parsers::*;
-use crate::assembler::operand_parsers::integer_operand;
-use crate::assembler::register_parsers::register;
+use crate::assembler::opcode_parser::*;
+use crate::assembler::operand_parser::integer_operand;
+use crate::assembler::register_parser::register;
 
 #[derive(Debug, PartialEq)]
 pub struct AssemblerInstruction {
@@ -62,7 +63,7 @@ impl AssemblerInstruction {
 
 /// Handles instructions of the following form:
 /// LOAD $0 #100
-named!(pub instruction_one<CompleteStr, AssemblerInstruction>,
+named!(pub instruction_one<types::CompleteStr, AssemblerInstruction>,
     do_parse!(
         o: opcode_load >>
         r: register >>

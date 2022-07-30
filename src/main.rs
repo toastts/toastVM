@@ -1,3 +1,4 @@
+#[macro_use]
 use nom;
 
 pub mod vm;

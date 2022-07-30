@@ -1,10 +1,10 @@
-use nom::types::CompleteStr;
+use nom::*;
 
-use assembler::instruction_parsers::{AssemblerInstruction, instruction_one};
+use crate::assembler::instruction_parser::{instruction_one, AssemblerInstruction};
 
 #[derive(Debug, PartialEq)]
 pub struct Program {
-    instructions: Vec<AssemblerInstruction>
+    instructions: Vec<AssemblerInstruction>,
 }
 
 impl Program {
@@ -17,7 +17,7 @@ impl Program {
     }
 }
 
-named!(pub program<CompleteStr, Program>,
+named!(pub program<types::CompleteStr, Program>,
     do_parse!(
         instructions: many1!(instruction_one) >>
         (
@@ -27,4 +27,3 @@ named!(pub program<CompleteStr, Program>,
         )
     )
 );
-

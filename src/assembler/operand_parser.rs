@@ -1,9 +1,9 @@
-use nom::types::CompleteStr;
 use nom::digit;
+use nom::*;
 
 use crate::assembler::Token;
 
-named!(pub integer_operand<CompleteStr, Token>,
+named!(pub integer_operand<types::CompleteStr, Token>,
     ws!(
         do_parse!(
             tag!("#") >>
@@ -14,4 +14,3 @@ named!(pub integer_operand<CompleteStr, Token>,
         )
     )
 );
-

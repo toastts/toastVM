@@ -4,7 +4,7 @@ use std::io;
 use std::io::Write;
 use std::num::ParseIntError;
 use nom::types::CompleteStr;
-use assembler::program_parsers::{Program, program};
+use crate::assembler::program_parser::{Program, program};
 
 pub struct REPL {
     cmd_buffer: Vec<String>,
