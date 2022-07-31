@@ -24,26 +24,28 @@ pub enum Token {
 #[derive(Debug)]
 pub struct Assembler {
     phase: AssemblerPhase,
-    labels: SymbolTable,
+    pub symbols: SymbolTable,
 }
 
 impl Assembler {
     pub fn new() -> Assembler {
         Assembler {
             phase: AssemblerPhase::First,
-            labels: SymbolTable::new(),
+            symbols: SymbolTable::new(),
         }
     }
 
     pub fn assemble(&mut self, raw: &str) -> Option<Vec<u8>> {
-        let result = program(CompleteStr(raw));
-        if !result.is_ok() {
-            return None;
+        match program(CompleteStr(raw)) {
+            Ok((_remainder, program)) => {
+                self.process_first_phase(&program);
+                Some(self.process_second_phase(&program))
+            }
+            Err(e) => {
+                println!("There was an error assembling the code: {:?}", e);
+                None
+            }
         }
-
-        let (_, p) = result.unwrap();
-        self.process_first_phase(&p);
-        Some(self.process_second_phase(&p))
     }
 
     fn process_first_phase(&mut self, p: &Program) {
@@ -54,10 +56,9 @@ impl Assembler {
     fn process_second_phase(&mut self, p: &Program) -> Vec<u8> {
         let mut program = vec![];
         for i in &p.instructions {
-            let mut bytes = i.to_bytes(&self.labels);
+            let mut bytes = i.to_bytes(&self.symbols);
             program.append(&mut bytes);
         }
-        println!("Program is: {:?}", program);
         program
     }
 
@@ -68,7 +69,7 @@ impl Assembler {
                 match i.label_name() {
                     Some(name) => {
                         let symbol = Symbol::new(name, SymbolType::Label, c);
-                        self.labels.add_symbol(symbol);
+                        self.symbols.add_symbol(symbol);
                     }
                     None => {}
                 };
@@ -99,6 +100,19 @@ pub struct Symbol {
 
 impl Symbol {
     pub fn new(name: String, symbol_type: SymbolType, offset: u32) -> Symbol {
+        Symbol {
+            name,
+            symbol_type,
+            offset,
+        }
+    }
+
+    pub fn new_with_register(
+        name: String,
+        symbol_type: SymbolType,
+        offset: u32,
+        register: usize,
+    ) -> Symbol {
         Symbol {
             name,
             symbol_type,
@@ -136,4 +150,5 @@ impl SymbolTable {
         None
     }
 }
+
 

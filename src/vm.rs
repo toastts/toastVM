@@ -1,6 +1,5 @@
 use crate::instruction::Opcode;
 
-
 #[derive(Default)]
 pub struct VM {
     pub registers: [i32; 32],
@@ -44,7 +43,7 @@ impl VM {
 
     fn execute_instruction(&mut self) -> bool {
         if self.pc >= self.program.len() {
-            return false;
+            return true;
         }
         match self.decode_opcode() {
             Opcode::LOAD => {
@@ -70,16 +69,15 @@ impl VM {
             Opcode::DIV => {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
-                self.registers[self.next_8_bits() as usize] = register1 / register2;
                 self.remainder = (register1 % register2) as usize;
             }
             Opcode::HLT => {
                 println!("HLT encountered");
-                return false;
+                return true;
             }
             Opcode::IGL => {
                 println!("Illegal instruction encountered");
-                return false;
+                return true;
             }
             Opcode::JMP => {
                 let target = self.registers[self.next_8_bits() as usize];
@@ -87,7 +85,6 @@ impl VM {
             }
             Opcode::JMPF => {
                 let value = self.registers[self.next_8_bits() as usize] as usize;
-                println!("Value is: {:?}", value);
                 self.pc += value;
             }
             Opcode::JMPB => {
@@ -112,6 +109,7 @@ impl VM {
                 } else {
                     self.equal_flag = false;
                 }
+
                 self.next_8_bits();
             }
             Opcode::GT => {
@@ -159,6 +157,7 @@ impl VM {
                 let target = self.registers[register];
                 if self.equal_flag {
                     self.pc = target as usize;
+                } else {
                 }
             }
             Opcode::NOP => {
@@ -172,8 +171,28 @@ impl VM {
                 let new_end = self.heap.len() as i32 + bytes;
                 self.heap.resize(new_end as usize, 0);
             }
-        }
-        true
+            Opcode::INC => {
+                let register_number = self.next_8_bits() as usize;
+                self.registers[register_number] += 1;
+                self.next_8_bits();
+                self.next_8_bits();
+            }
+            Opcode::DEC => {
+                let register_number = self.next_8_bits() as usize;
+                self.registers[register_number] -= 1;
+                self.next_8_bits();
+                self.next_8_bits();
+            }
+            Opcode::DJMPE => {
+                let destination = self.next_16_bits();
+                if self.equal_flag {
+                    self.pc = destination as usize;
+                } else {
+                    self.next_8_bits();
+                }
+            }
+        };
+        false
     }
 
     fn decode_opcode(&mut self) -> Opcode {
@@ -195,3 +214,4 @@ impl VM {
         result
     }
 }
+

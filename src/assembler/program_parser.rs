@@ -3,6 +3,7 @@ use nom::*;
 
 use crate::assembler::instruction_parser::{instruction, AssemblerInstruction};
 use crate::assembler::SymbolTable;
+use crate::assembler::directive_parser::directive;
 
 #[derive(Debug, PartialEq)]
 pub struct Program {
@@ -21,7 +22,7 @@ impl Program {
 
 named!(pub program<CompleteStr, Program>,
     do_parse!(
-        instructions: many1!(instruction) >>
+        instructions: many1!(alt!(instruction | directive)) >>
         (
             Program {
                 instructions: instructions
