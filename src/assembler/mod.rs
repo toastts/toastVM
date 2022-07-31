@@ -106,19 +106,6 @@ impl Symbol {
             offset,
         }
     }
-
-    pub fn new_with_register(
-        name: String,
-        symbol_type: SymbolType,
-        offset: u32,
-        _register: usize,
-    ) -> Symbol {
-        Symbol {
-            name,
-            symbol_type,
-            offset,
-        }
-    }
 }
 
 #[derive(Debug)]
