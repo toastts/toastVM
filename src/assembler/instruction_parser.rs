@@ -1,25 +1,21 @@
 use std;
 
 use nom::types::CompleteStr;
-use nom::multispace;
 use nom::*;
 
+use crate::assembler::label_parser::label_declaration;
 use crate::assembler::opcode_parser::*;
 use crate::assembler::operand_parser::operand;
-use crate::assembler::register_parser::register;
-use crate::assembler::directive_parser::directive;
-use crate::assembler::label_parser::label_declaration;
-use crate::assembler::{Token, SymbolTable};
-
+use crate::assembler::{SymbolTable, Token};
 
 #[derive(Debug, PartialEq)]
 pub struct AssemblerInstruction {
-    opcode: Option<Token>,
-    label: Option<Token>,
-    directive: Option<Token>,
-    operand1: Option<Token>,
-    operand2: Option<Token>,
-    operand3: Option<Token>,
+    pub opcode: Option<Token>,
+    pub label: Option<Token>,
+    pub directive: Option<Token>,
+    pub operand1: Option<Token>,
+    pub operand2: Option<Token>,
+    pub operand3: Option<Token>,
 }
 
 impl AssemblerInstruction {
@@ -44,6 +40,9 @@ impl AssemblerInstruction {
             if let Some(token) = operand {
                 AssemblerInstruction::extract_operand(token, &mut results, symbols)
             }
+        }
+        while results.len() < 4 {
+            results.push(0);
         }
 
         results
@@ -100,74 +99,21 @@ impl AssemblerInstruction {
     }
 }
 
-named!(instruction_one<CompleteStr, AssemblerInstruction>,
+named!(instruction_combined<CompleteStr, AssemblerInstruction>,
     do_parse!(
         l: opt!(label_declaration) >>
         o: opcode >>
-        r: register >>
-        i: operand >>
+        o1: opt!(operand) >>
+        o2: opt!(operand) >>
+        o3: opt!(operand) >>
         (
             AssemblerInstruction{
                 opcode: Some(o),
                 label: l,
                 directive: None,
-                operand1: Some(r),
-                operand2: Some(i),
-                operand3: None
-            }
-        )
-    )
-);
-
-named!(instruction_two<CompleteStr, AssemblerInstruction>,
-    do_parse!(
-        l: opt!(label_declaration) >>
-        o: opcode >>
-        opt!(multispace) >>
-        (
-            AssemblerInstruction{
-                opcode: Some(o),
-                label: l,
-                directive: None,
-                operand1: None,
-                operand2: None,
-                operand3: None,
-            }
-        )
-    )
-);
-
-named!(instruction_three<CompleteStr, AssemblerInstruction>,
-    do_parse!(
-        l: opt!(label_declaration) >>
-        o: opcode >>
-        r1: register >>
-        r2: register >>
-        r3: register >>
-        (
-            AssemblerInstruction{
-                opcode: Some(o),
-                label: l,
-                directive: None,
-                operand1: Some(r1),
-                operand2: Some(r2),
-                operand3: Some(r3),
-            }
-        )
-    )
-);
-
-named!(instruction_four<CompleteStr, AssemblerInstruction>,
-    do_parse!(
-        d: directive >>
-        (
-            AssemblerInstruction{
-                label: None,
-                opcode: None,
-                directive: Some(d),
-                operand1: None,
-                operand2: None,
-                operand3: None
+                operand1: o1,
+                operand2: o2,
+                operand3: o3,
             }
         )
     )
@@ -176,10 +122,7 @@ named!(instruction_four<CompleteStr, AssemblerInstruction>,
 named!(pub instruction<CompleteStr, AssemblerInstruction>,
     do_parse!(
         ins: alt!(
-            instruction_one |
-            instruction_three |
-            instruction_two |
-            instruction_four
+            instruction_combined
         ) >>
         (
             ins
