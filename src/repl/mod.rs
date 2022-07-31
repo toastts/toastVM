@@ -20,51 +20,51 @@ impl REPL {
     }
 
     pub fn run(&mut self) {
-        println!("Welcome to Iridium! Let's be productive!");
+        println!("welcome to this painfully uninteresting vm");
         loop {
             let mut buffer = String::new();
 
             let stdin = io::stdin();
 
             print!(">>> ");
-            io::stdout().flush().expect("Unable to flush stdout");
+            io::stdout().flush().expect("can't flush stdout");
 
             stdin
                 .read_line(&mut buffer)
-                .expect("Unable to read line from user");
+                .expect("can't read line from user");
             let buffer = buffer.trim();
             self.command_buffer.push(buffer.to_string());
             match buffer {
                 ".quit" => {
-                    println!("Farewell! Have a great day!");
+                    println!("bye");
                     std::process::exit(0);
                 }
-                ".history" => {
+                ".hist" => {
                     for command in &self.command_buffer {
                         println!("{}", command);
                     }
                 }
-                ".program" => {
-                    println!("Listing instructions currently in VM's program vector:");
+                ".prog" => {
+                    println!("showing instructions in vm");
                     for instruction in &self.vm.program {
                         println!("{}", instruction);
                     }
-                    println!("End of Program Listing");
+                    println!("<DONE>");
                 }
-                ".registers" => {
-                    println!("Listing registers and all contents:");
+                ".dump" => {
+                    println!("dumping registers and content");
                     println!("{:#?}", self.vm.registers);
-                    println!("End of Register Listing")
+                    println!("<DONE>")
                 }
                 _ => {
                     let program = match program(buffer.into()) {
                         Ok((remainder, program)) => {
-                            println!("Remainder is: {:?}", remainder);
-                            println!("Program is: {:?}", program);
+                            println!("remainder: {:?}", remainder);
+                            println!("program is: {:?}", program);
                             program
                         }
                         Err(_) => {
-                            println!("Unable to parse input");
+                            println!("can't parse input");
                             continue;
                         }
                     };
