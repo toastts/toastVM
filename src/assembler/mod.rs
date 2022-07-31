@@ -111,7 +111,7 @@ impl Symbol {
         name: String,
         symbol_type: SymbolType,
         offset: u32,
-        register: usize,
+        _register: usize,
     ) -> Symbol {
         Symbol {
             name,
