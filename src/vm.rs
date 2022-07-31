@@ -1,11 +1,14 @@
 use crate::instruction::Opcode;
 
+
+#[derive(Default)]
 pub struct VM {
     pub registers: [i32; 32],
     pc: usize,
     pub program: Vec<u8>,
+    heap: Vec<u8>,
     remainder: usize,
-    equals: bool,
+    equal_flag: bool,
 }
 
 impl VM {
@@ -13,37 +16,13 @@ impl VM {
         VM {
             registers: [0; 32],
             program: vec![],
+            heap: vec![],
             pc: 0,
             remainder: 0,
-            equals: false,
+            equal_flag: false,
         }
     }
 
-    fn decode_opcode(&mut self) -> Opcode {
-        let opcode = Opcode::from(self.program[self.pc]);
-        self.pc += 1;
-        opcode
-    }
-
-    fn next_8_bits(&mut self) -> u8 {
-        let result = self.program[self.pc];
-        self.pc += 1;
-        result
-    }
-
-    fn next_16_bits(&mut self) -> u16 {
-        let result =
-            ((u16::from(self.program[self.pc])) << 8) | u16::from(self.program[self.pc + 1]);
-        self.pc += 2;
-        result
-    }
-
-    pub fn add_byte(&mut self, b: u8) {
-        self.program.push(b);
-    }
-
-    //loops through all instructions
-    /// Loops as long as instructions can be executed.
     pub fn run(&mut self) {
         let mut is_done = false;
         while !is_done {
@@ -51,16 +30,22 @@ impl VM {
         }
     }
 
-    /// Executes one instruction. Meant to allow for more controlled execution of the VM
     pub fn run_once(&mut self) {
         self.execute_instruction();
+    }
+
+    pub fn add_byte(&mut self, b: u8) {
+        self.program.push(b);
+    }
+
+    pub fn add_bytes(&mut self, mut b: Vec<u8>) {
+        self.program.append(&mut b);
     }
 
     fn execute_instruction(&mut self) -> bool {
         if self.pc >= self.program.len() {
             return false;
         }
-
         match self.decode_opcode() {
             Opcode::LOAD => {
                 let register = self.next_8_bits() as usize;
@@ -113,9 +98,9 @@ impl VM {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 if register1 == register2 {
-                    self.equals = true;
+                    self.equal_flag = true;
                 } else {
-                    self.equals = false;
+                    self.equal_flag = false;
                 }
                 self.next_8_bits();
             }
@@ -123,9 +108,9 @@ impl VM {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 if register1 != register2 {
-                    self.equals = true;
+                    self.equal_flag = true;
                 } else {
-                    self.equals = false;
+                    self.equal_flag = false;
                 }
                 self.next_8_bits();
             }
@@ -133,9 +118,9 @@ impl VM {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 if register1 > register2 {
-                    self.equals = true;
+                    self.equal_flag = true;
                 } else {
-                    self.equals = false;
+                    self.equal_flag = false;
                 }
                 self.next_8_bits();
             }
@@ -143,9 +128,9 @@ impl VM {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 if register1 >= register2 {
-                    self.equals = true
+                    self.equal_flag = true
                 } else {
-                    self.equals = false
+                    self.equal_flag = false
                 }
                 self.next_8_bits();
             }
@@ -153,9 +138,9 @@ impl VM {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 if register1 < register2 {
-                    self.equals = true;
+                    self.equal_flag = true;
                 } else {
-                    self.equals = false;
+                    self.equal_flag = false;
                 }
                 self.next_8_bits();
             }
@@ -163,16 +148,16 @@ impl VM {
                 let register1 = self.registers[self.next_8_bits() as usize];
                 let register2 = self.registers[self.next_8_bits() as usize];
                 if register1 <= register2 {
-                    self.equals = true;
+                    self.equal_flag = true;
                 } else {
-                    self.equals = false;
+                    self.equal_flag = false;
                 }
                 self.next_8_bits();
             }
             Opcode::JMPE => {
                 let register = self.next_8_bits() as usize;
                 let target = self.registers[register];
-                if self.equals {
+                if self.equal_flag {
                     self.pc = target as usize;
                 }
             }
@@ -181,7 +166,32 @@ impl VM {
                 self.next_8_bits();
                 self.next_8_bits();
             }
+            Opcode::ALOC => {
+                let register = self.next_8_bits() as usize;
+                let bytes = self.registers[register];
+                let new_end = self.heap.len() as i32 + bytes;
+                self.heap.resize(new_end as usize, 0);
+            }
         }
         true
+    }
+
+    fn decode_opcode(&mut self) -> Opcode {
+        let opcode = Opcode::from(self.program[self.pc]);
+        self.pc += 1;
+        opcode
+    }
+
+    fn next_8_bits(&mut self) -> u8 {
+        let result = self.program[self.pc];
+        self.pc += 1;
+        result
+    }
+
+    fn next_16_bits(&mut self) -> u16 {
+        let result =
+            ((u16::from(self.program[self.pc])) << 8) | u16::from(self.program[self.pc + 1]);
+        self.pc += 2;
+        result
     }
 }

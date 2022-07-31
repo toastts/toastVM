@@ -16,3 +16,4 @@ named!(pub register <types::CompleteStr, Token>,
         )
     )
 );
+

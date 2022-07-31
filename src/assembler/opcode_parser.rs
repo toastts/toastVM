@@ -11,3 +11,4 @@ named!(pub opcode<types::CompleteStr, Token>,
       )
   )
 );
+
