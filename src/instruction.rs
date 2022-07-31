@@ -20,6 +20,7 @@ pub enum Opcode {
     GT,
     JMPE,
     NOP,
+    ALOC
 }
 #[derive(Debug, PartialEq)]
 pub struct Instruction {
@@ -52,6 +53,7 @@ impl<'a> From<CompleteStr<'a>> for Opcode {
             CompleteStr("lt") => Opcode::LT,
             CompleteStr("jmpe") => Opcode::JMPE,
             CompleteStr("nop") => Opcode::NOP,
+            CompleteStr("aloc") => Opcode::ALOC,
             _ => Opcode::IGL,
         }
     }

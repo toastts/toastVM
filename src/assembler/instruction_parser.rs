@@ -6,6 +6,8 @@ use crate::assembler::opcode_parser::*;
 use crate::assembler::operand_parser::integer_operand;
 use crate::assembler::register_parser::register;
 use crate::assembler::Token;
+use nom::multispace;
+use nom::types::CompleteStr;
 
 #[derive(Debug, PartialEq)]
 pub struct AssemblerInstruction {
@@ -38,6 +40,7 @@ impl AssemblerInstruction {
 
         results
     }
+
     fn extract_operand(t: &Token, results: &mut Vec<u8>) {
         match t {
             Token::Register { reg_num } => {
@@ -58,7 +61,7 @@ impl AssemblerInstruction {
     }
 }
 
-named!(instruction_one<types::CompleteStr, AssemblerInstruction>,
+named!(instruction_one<CompleteStr, AssemblerInstruction>,
     do_parse!(
         o: opcode >>
         r: register >>
@@ -74,7 +77,7 @@ named!(instruction_one<types::CompleteStr, AssemblerInstruction>,
     )
 );
 
-named!(instruction_two<types::CompleteStr, AssemblerInstruction>,
+named!(instruction_two<CompleteStr, AssemblerInstruction>,
     do_parse!(
         o: opcode >>
         opt!(multispace) >>
@@ -89,7 +92,7 @@ named!(instruction_two<types::CompleteStr, AssemblerInstruction>,
     )
 );
 
-named!(pub instruction<types::CompleteStr, AssemblerInstruction>,
+named!(pub instruction<CompleteStr, AssemblerInstruction>,
     do_parse!(
         ins: alt!(
             instruction_one |
