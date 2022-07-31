@@ -1,7 +1,8 @@
 use nom::alpha;
 use nom::types::CompleteStr;
+use nom::*;
 
-use assembler::Token;
+use crate::assembler::Token;
 
 named!(pub directive <CompleteStr, Token>,
     ws!(

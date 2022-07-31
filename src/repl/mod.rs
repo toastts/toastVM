@@ -1,19 +1,17 @@
-use crate::assembler::program_parser::{program, Program};
-use crate::vm::VM;
-use nom::types::CompleteStr;
 use std;
 use std::io;
 use std::io::Write;
 use std::num::ParseIntError;
 
-/// Core structure for the REPL for the Assembler
+use crate::assembler::program_parser::program;
+use crate::vm::VM;
+
 pub struct REPL {
     command_buffer: Vec<String>,
     vm: VM,
 }
 
 impl REPL {
-    /// Creates and returns a new assembly REPL
     pub fn new() -> REPL {
         REPL {
             vm: VM::new(),
@@ -21,24 +19,16 @@ impl REPL {
         }
     }
 
-    /// Run loop similar to the VM execution loop, but the instructions are taken from the user directly
-    /// at the terminal and not from pre-compiled bytecode
     pub fn run(&mut self) {
         println!("Welcome to Iridium! Let's be productive!");
         loop {
-            // This allocates a new String in which to store whatever the user types each iteration.
-            // TODO: Figure out how allocate this outside of the loop and re-use it every iteration
             let mut buffer = String::new();
 
-            // Blocking call until the user types in a command
             let stdin = io::stdin();
 
-            // Annoyingly, `print!` does not automatically flush stdout like `println!` does, so we
-            // have to do that there for the user to see our `>>> ` prompt.
             print!(">>> ");
             io::stdout().flush().expect("Unable to flush stdout");
 
-            // Here we'll look at the string the user gave us.
             stdin
                 .read_line(&mut buffer)
                 .expect("Unable to read line from user");
@@ -68,22 +58,21 @@ impl REPL {
                 }
                 _ => {
                     let program = match program(buffer.into()) {
-                        // Rusts pattern matching is pretty powerful an can even be nested
-                        Ok((_, program)) => program,
+                        Ok((remainder, program)) => {
+                            println!("Remainder is: {:?}", remainder);
+                            println!("Program is: {:?}", program);
+                            program
+                        }
                         Err(_) => {
                             println!("Unable to parse input");
                             continue;
                         }
                     };
-                    // The `program` is `pub` anyways so you can just `append` to the `Vec`
-                    self.vm.program.append(&mut program.to_bytes());
                 }
             }
         }
     }
 
-    /// Accepts a hexadecimal string WITHOUT a leading `0x` and returns a Vec of u8
-    /// Example for a LOAD command: 00 01 03 E8
     #[allow(dead_code)]
     fn parse_hex(&mut self, i: &str) -> Result<Vec<u8>, ParseIntError> {
         let split = i.split(' ').collect::<Vec<&str>>();
@@ -108,3 +97,4 @@ impl Default for REPL {
         Self::new()
     }
 }
+
