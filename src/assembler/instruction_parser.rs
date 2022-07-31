@@ -2,6 +2,7 @@ use std;
 
 use nom::types::CompleteStr;
 use nom::multispace;
+use nom::*;
 
 use crate::assembler::opcode_parser::*;
 use crate::assembler::operand_parser::operand;
