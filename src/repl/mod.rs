@@ -26,7 +26,7 @@ impl REPL {
     }
 
     pub fn run(&mut self) {
-        println!("welcome to this painfully uninteresting vm");
+        println!("this is toastVM... testing, testing... is this thing on?");
         loop {
             let mut buffer = String::new();
 
