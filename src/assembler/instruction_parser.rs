@@ -77,8 +77,6 @@ named!(instruction_one<CompleteStr, AssemblerInstruction>,
     )
 );
 
-/// Handles instructions of the following form:
-/// <opcode>
 named!(instruction_two<CompleteStr, AssemblerInstruction>,
     do_parse!(
         o: opcode >>
@@ -94,7 +92,6 @@ named!(instruction_two<CompleteStr, AssemblerInstruction>,
     )
 );
 
-/// Will try to parse out any of the Instruction forms
 named!(pub instruction<CompleteStr, AssemblerInstruction>,
     do_parse!(
         ins: alt!(
